@@ -1,0 +1,15 @@
+const express = require('express')
+const instance = express()
+const http = require('http')
+const { Server } = require('socket.io')
+const server = http.createServer(instance)
+const io = new Server(server, {cors:{origin:'*'}})
+io.on('connection', socket => {
+    console.log(socket.id)
+    socket.on('join:room', ({room, socketId, peerId, host}) => {
+      socket.join(room)
+      socket.to(room).emit('user:connected', {peerId, host, socketId})
+    })
+    socket.on('disconnect', () => console.log('Disconnected'))
+})
+server.listen(3000)
